@@ -33,11 +33,17 @@ REST_USE_JWT = True
 
 
 REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": ("restframework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_jwt.authentication.JSONWebTokenAuthentication",
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
-    )
+    ),
+}
+
+JWT_AUTH = {
+    "JWT_ALLOW_REFRESH": True,
+    "JWT_SECRET_KEY": SECRET_KEY,
 }
 
 # Application definition
