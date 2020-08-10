@@ -29,6 +29,7 @@ class TemperatureViewSet(viewsets.ModelViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors)
 
-        serializer.save()
+        self.perform_create(serializer)
+
         return Response(serializer.data)
 
