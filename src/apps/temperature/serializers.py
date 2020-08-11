@@ -6,4 +6,3 @@ class TemperatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Temperature
         fields = "__all__"
-
