@@ -6,15 +6,22 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 import jwt
 from config import Config
 from rest_framework.response import Response
+from .permissions import ReadOnly, IsGroupAdmin
 
 
 class TemperatureViewSet(viewsets.ModelViewSet):
     queryset = Temperature.objects.all()
     serializer_class = TemperatureSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsGroupAdmin | IsAuthenticated | ReadOnly]
     authentication_classes = [
         JSONWebTokenAuthentication,
     ]
+
+    def retrieve(self, request, pk):
+        self.check_object_permissions(self.request, pk)
+        queryset = Temperature.objects.get(id=pk)
+        serializer = TemperatureSerializer(queryset)
+        return Response(serializer.data)
 
     def create(self, request):
         token = request.auth
@@ -29,6 +36,7 @@ class TemperatureViewSet(viewsets.ModelViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors)
 
-        serializer.save()
+        self.perform_create(serializer)
+
         return Response(serializer.data)
 
