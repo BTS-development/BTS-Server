@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from apps.user.views import UserViewSet
-from apps.group.views import GroupViewSet
+from apps.group.views import GroupViewSet,MemberViewSet
 from apps.temperature.views import TemperatureViewSet
 from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import (
@@ -26,6 +26,7 @@ from rest_framework_jwt.views import (
 
 router = DefaultRouter()
 router.register(r"groups",GroupViewSet,basename='group')
+router.register(r"groups/join",MemberViewSet,basename='member')
 router.register(r"users/account", UserViewSet)
 router.register(r"temperatures", TemperatureViewSet)
 
@@ -35,4 +36,5 @@ urlpatterns = [
     url(r"^users/account/refresh", refresh_jwt_token),
     url(r"^users/account/verify", verify_jwt_token),
     url(r"^users/account/signup", include("rest_auth.registration.urls")),
+
 ]
