@@ -34,13 +34,12 @@ class UserManager(BaseUserManager):  # Helper Class
 
 class User(AbstractBaseUser):
     objects = UserManager()
-    username = models.CharField(max_length=20, null=False, unique=True)
+    username = models.CharField(max_length=20, null=False, unique=False)
     email = models.EmailField(max_length=255, unique=True,)
-
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 
-    USERNAME_FIELD = "username"
+    USERNAME_FIELD = "email"
 
     def __str__(self):
         return self.email
