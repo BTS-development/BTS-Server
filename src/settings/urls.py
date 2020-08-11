@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from apps.user.views import UserViewSet
+from apps.group.views import GroupViewSet
 from apps.temperature.views import TemperatureViewSet
 from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import (
@@ -24,6 +25,7 @@ from rest_framework_jwt.views import (
 )
 
 router = DefaultRouter()
+router.register(r"groups",GroupViewSet,basename='group')
 router.register(r"users/account", UserViewSet)
 router.register(r"temperatures", TemperatureViewSet)
 
