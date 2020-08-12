@@ -20,8 +20,6 @@ class IsGroupAdmin(permissions.BasePermission):
 
         for linkedUserGroup_queryset in linkedUserGroup_querysets:
             group_queryset = Group.objects.get(id=linkedUserGroup_queryset.group_id)
-            print(request.user.id)
-            print(group_queryset.owner.id)
             if group_queryset.owner.id == request.user.id:
                 return True
         return False

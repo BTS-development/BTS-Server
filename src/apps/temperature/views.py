@@ -19,6 +19,14 @@ class TemperatureViewSet(viewsets.ModelViewSet):
         JSONWebTokenAuthentication,
     ]
 
+    def list(self, request, format=None):
+        token = request.auth
+        payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+
+        queryset = Temperature.objects.filter(owner_id=payload["user_id"])
+        serializer = TemperatureSerializer(queryset, many=True)
+        return Response(serializer.data)
+
     def retrieve(self, request, pk):
         self.check_object_permissions(self.request, pk)
         queryset = Temperature.objects.get(id=pk)
@@ -27,7 +35,6 @@ class TemperatureViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         token = request.auth
-        token.decode("utf-8")
         payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
 
         serializer = TemperatureSerializer(
