@@ -30,12 +30,14 @@ class GroupViewSet(viewsets.ViewSet):
         decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
         #------------------------------------
 
+      
+                
         code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
         
         while(bool(Group.objects.filter(code=code))):
             code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
-        
+
 
         serializer = GroupSerializer(
             data={"name": request.data["name"], "owner": decoded["user_id"], "code":code}
@@ -45,11 +47,6 @@ class GroupViewSet(viewsets.ViewSet):
             return Response(serializer.errors)
 
         serializer.save()
-                
-                
-           
-
-            
         return Response(serializer.data)
 
 
@@ -106,8 +103,15 @@ class MemberViewSet(viewsets.ViewSet):
         decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
         #------------------------------------
 
-        group = Group.objects.filter(code=request.data["code"]).values()
-        group_id = group[0]["id"]
+        try:
+            group = Group.objects.filter(code=request.data["code"]).values()[0]
+        except:
+            return Response({"message":"존재하지 않는 그룹코드입니다"})
+        
+        if group["owner_id"] == decoded["user_id"] :
+            return Response({"message":"이 그룹의 관리자입니다"})
+
+        group_id = group["id"]
 
         serializer = LinkedUserGroupSerializer(
             data= {"group":group_id, "member":decoded["user_id"]}
@@ -117,5 +121,7 @@ class MemberViewSet(viewsets.ViewSet):
         if not serializer.is_valid():
             return Response(serializer.errors)
 
+        
         serializer.save()
+      
         return Response(serializer.data)
