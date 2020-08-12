@@ -67,23 +67,23 @@ class GroupViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-        def retrieve(self, request, pk=None):
-    
-            #---------------------
-            token = request.auth
-            token.decode("utf-8")
+    def retrieve(self, request, pk=None):
 
-            decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
-            #------------------------------
+        #---------------------
+        token = request.auth
+        token.decode("utf-8")
 
-            queryset = Group.objects.all()
-            group = get_object_or_404(queryset,pk=pk)
-            serializer = GroupSerializer(group)
+        decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+        #------------------------------
 
-            if not serializer.is_valid():
-                return Response(serializer.errors)   
+        queryset = Group.objects.all()
+        group = get_object_or_404(queryset,pk=pk)
+        serializer = GroupSerializer(group)
 
-            return Response(serializer.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors)   
+
+        return Response(serializer.data)
 
 
 
@@ -125,3 +125,5 @@ class MemberViewSet(viewsets.ViewSet):
         serializer.save()
       
         return Response(serializer.data)
+
+
