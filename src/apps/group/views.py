@@ -1,14 +1,18 @@
-from .models import Group,LinkedUserGroup
-from .serializers import GroupSerializer,LinkedUserGroupSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-import jwt
-from config import Config
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-import json
 
+from .models import Group,LinkedUserGroup
+from .serializers import GroupSerializer,LinkedUserGroupSerializer
+from config import Config
+# from apps.temperature.models import temperature
+# from apps.temperature.serializer import TemperatureSerializer
+
+import jwt
+import json
 import random
 import string
 
@@ -67,7 +71,7 @@ class GroupViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-    def retrieve(self, request, pk=None):
+    def retrieve(self, request, pk):
 
         #---------------------
         token = request.auth
@@ -86,16 +90,9 @@ class GroupViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-
-class MemberViewSet(viewsets.ViewSet):
-
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [
-        JSONWebTokenAuthentication,
-    ]
-
-    def create(self,request):
-
+    @action(detail=False,methods=['POST'])
+    def join(self,request):
+    
          #-------------------------
         token = request.auth
         token.decode("utf-8")
@@ -126,4 +123,36 @@ class MemberViewSet(viewsets.ViewSet):
       
         return Response(serializer.data)
 
+    
+    # @action(detail=True,methods=['GET'])
+    # def user_info(self,request,pk):
 
+    #     #---------------------
+    #     token = request.auth
+    #     token.decode("utf-8")
+
+    #     decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+    #     #------------------------------
+
+    #     queryset = LinkedUserGroup.objects.filter(group=pk)
+        
+    #     queryset = queryset.select_related('temperature')
+    #     serializer = TemperatureSerializer(queryset)
+
+        
+
+    #     if not serializer.is_valid():
+    #         return Response(serializer.errors)   
+
+    #     return Response(serializer.data)
+
+
+
+class MemberViewSet(viewsets.ViewSet):
+
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [
+        JSONWebTokenAuthentication,
+    ]
+
+    
