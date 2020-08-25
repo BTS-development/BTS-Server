@@ -4,6 +4,8 @@ from apps.group.models import Group, LinkedUserGroup
 
 
 class IsOwnerOnly(permissions.BasePermission):
+    message = "you are not owner this temperature"
+
     def has_object_permission(self, request, view, obj):
         temperature_queryset = Temperature.objects.get(id=obj)
         if temperature_queryset.owner_id == request.user.id:
@@ -23,12 +25,6 @@ class IsGroupAdmin(permissions.BasePermission):
             if group_queryset.owner.id == request.user.id:
                 return True
         return False
-        # obj로 접근하려는 temperature id 가져옴
-
-    # def has_permission(self, request, view):
-    # user model 가져오고
-    # group.get()
-    # group model 가져오고 owner == request.user 맞나 본다
 
 
 class ReadOnly(permissions.BasePermission):

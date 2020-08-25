@@ -1,5 +1,7 @@
 import jwt
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Temperature
 from .serializers import TemperatureSerializer
@@ -19,7 +21,12 @@ class TemperatureViewSet(viewsets.ModelViewSet):
         JSONWebTokenAuthentication,
     ]
 
-    def list(self, request, format=None):
+    @action(detail=False, methods=["get"], permission_classes=[IsGroupAdmin])
+    def group_temperatures(self, request, pk=None):
+        self.check_object_permissions(self.request, pk)
+
+    @action(detail=False, methods=["get"])
+    def my_temperatures(self, request, format=None):
         token = request.auth
         payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
 
