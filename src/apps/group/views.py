@@ -5,16 +5,21 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
+import os
+import sys 
+
 from .models import Group,LinkedUserGroup
 from .serializers import GroupSerializer,LinkedUserGroupSerializer
 from config import Config
-# from apps.temperature.models import temperature
-# from apps.temperature.serializer import TemperatureSerializer
+
+from ..temperature.models import Temperature
+from ..temperature.serializers import TemperatureSerializer
 
 import jwt
 import json
 import random
 import string
+
 
 
 
@@ -53,8 +58,6 @@ class GroupViewSet(viewsets.ViewSet):
         serializer.save()
         return Response(serializer.data)
 
-
-
     def list(self, request):
 
         #---------------------
@@ -69,7 +72,6 @@ class GroupViewSet(viewsets.ViewSet):
         serializer = GroupSerializer(queryset, many=True)
 
         return Response(serializer.data)
-
 
     def retrieve(self, request, pk):
 
@@ -88,7 +90,6 @@ class GroupViewSet(viewsets.ViewSet):
             return Response(serializer.errors)   
 
         return Response(serializer.data)
-
 
     @action(detail=False,methods=['POST'])
     def join(self,request):
@@ -122,29 +123,27 @@ class GroupViewSet(viewsets.ViewSet):
         serializer.save()
       
         return Response(serializer.data)
-
     
-    # @action(detail=True,methods=['GET'])
-    # def user_info(self,request,pk):
+    @action(detail=True,methods=['GET'])
+    def user_info(self,request,pk):
 
-    #     #---------------------
-    #     token = request.auth
-    #     token.decode("utf-8")
+        #---------------------
+        token = request.auth
+        token.decode("utf-8")
 
-    #     decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
-    #     #------------------------------
+        decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+        #------------------------------
 
-    #     queryset = LinkedUserGroup.objects.filter(group=pk)
+        queryset = LinkedUserGroup.objects.filter(group=pk)
         
-    #     queryset = queryset.select_related('temperature')
-    #     serializer = TemperatureSerializer(queryset)
+        queryset = queryset.select_related('temperature')
+        serializer = TemperatureSerializer(queryset)
 
-        
 
-    #     if not serializer.is_valid():
-    #         return Response(serializer.errors)   
+        if not serializer.is_valid():
+            return Response(serializer.errors)   
 
-    #     return Response(serializer.data)
+        return Response(serializer.data)
 
 
 
