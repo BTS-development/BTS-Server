@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "apps.user",
     "apps.temperature",
     "apps.group",
+    "herokuapp",
 ]
 SITE_ID = 1
 
