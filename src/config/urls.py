@@ -27,7 +27,6 @@ from rest_framework_jwt.views import (
 router = DefaultRouter()
 router.register(r"groups", GroupViewSet, basename="group")
 router.register(r"users/account", UserViewSet)
-router.register(r"temperatures", TemperatureViewSet)
 
 urlpatterns = [
     url(r"^", include(router.urls)),
