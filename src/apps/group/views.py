@@ -4,7 +4,6 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 import jwt
-from config import Config
 from rest_framework.response import Response
 
 import random
@@ -24,7 +23,7 @@ class GroupViewSet(viewsets.ViewSet):
         token = request.auth
         token.decode("utf-8")
 
-        decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+        decoded = jwt.decode(token, SECRET_KEY, ALGORITHM)
         # ------------------------------------
 
         code = "".join(
@@ -52,7 +51,7 @@ class GroupViewSet(viewsets.ViewSet):
         token = request.auth
         token.decode("utf-8")
 
-        decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+        decoded = jwt.decode(token, SECRET_KEY, ALGORITHM)
         # ------------------------------
 
         queryset = Group.objects.filter(owner=decoded["user_id"])

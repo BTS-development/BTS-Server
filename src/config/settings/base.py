@@ -11,20 +11,32 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-from config import Config
+import json
+
+DEBUG = True
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(_BASE)
+ROOT_DIR = os.path.dirname(BASE_DIR)
 
+# Config Path
+CONFIG_SECRET_DIR = os.path.join(ROOT_DIR, ".config_secret")
+CONFIG_SECRET_COMMON_FILE = os.path.join(CONFIG_SECRET_DIR, "settings_common.json")
+CONFIG_SECRET_DEV_FILE = os.path.join(CONFIG_SECRET_DIR, "settings_dev.json")
+CONFIG_SECRET_DEPLOY_FILE = os.path.join(CONFIG_SECRET_DIR, "settings_deploy.json")
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = Config.SECRET_KEY
+config_secret_common = json.loads(open(CONFIG_SECRET_COMMON_FILE).read())
+SECRET_KEY = config_secret_common["django"]["secret_key"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = Config.DEBUG
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    }
+}
 
 ALLOWED_HOSTS = []
 
@@ -76,7 +88,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "settings.urls"
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
@@ -94,18 +106,11 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "settings.wsgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
 
 
 # Password validation
