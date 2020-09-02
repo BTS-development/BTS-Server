@@ -10,7 +10,6 @@ from .serializers import TemperatureSerializer
 from utils.authentication import JSONWebTokenAuthentication
 from utils.permissions import ReadOnly, IsGroupAdmin, IsOwnerOnly
 from rest_framework.permissions import IsAuthenticated
-from config import Config
 
 
 class TemperatureViewSet(viewsets.ModelViewSet):
@@ -28,7 +27,7 @@ class TemperatureViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def my_temperatures(self, request, format=None):
         token = request.auth
-        payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+        payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
 
         queryset = Temperature.objects.filter(owner_id=payload["user_id"])
         serializer = TemperatureSerializer(queryset, many=True)
@@ -42,7 +41,7 @@ class TemperatureViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         token = request.auth
-        payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+        payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
 
         serializer = TemperatureSerializer(
             data={"value": request.data["value"], "owner": payload["user_id"],}
