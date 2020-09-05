@@ -1,64 +1,63 @@
 import jwt
-from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Temperature
-from .serializers import TemperatureSerializer
 from rest_framework import generics
+from .models import Temperature
+from apps.group.models import LinkedUserGroup
+from .serializers import TemperatureSerializer
 
-# from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from utils.authentication import JSONWebTokenAuthentication
-from utils.permissions import ReadOnly, IsGroupAdmin, IsOwnerOnly
+from utils.permissions import ReadOnly, IsGroupAdmin, OwnerOnly
 from rest_framework.permissions import IsAuthenticated
 
 
-class TemperatureViewSet(viewsets.ModelViewSet):
-    queryset = Temperature.objects.all()
+class CreateTemperatureAPI(generics.CreateAPIView):
+    authentication_classes = [JSONWebTokenAuthentication]
     serializer_class = TemperatureSerializer
-    permission_classes = [IsOwnerOnly | IsGroupAdmin & IsAuthenticated & ReadOnly]
-    authentication_classes = [
-        JSONWebTokenAuthentication,
-    ]
 
-    def get_object(self, pk):
-        try:
-            obj = Temperature.objects.get(id=pk)
-            self.check_object_permissions(self.request, obj)
-            return obj
-        except Temperature.DoesNotExist:
-            return Response({"message": "Temperature DoesNotExist"}, status=404)
+    def post(self, request, *args, **kwargs):
+        request.data["owner"] = self.request.user.id
+        return super().post(request, *args, **kwargs)
 
-    @action(detail=False, methods=["get"])
-    def group_temperatures(self, request, pk=None):
-        temperature = self.get_object(pk=pk)
 
-    @action(detail=False, methods=["get"])
-    def my_temperatures(self, request, format=None):
-        token = request.auth
-        payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
+class GetTemperatureAPI(generics.RetrieveAPIView):
+    authentication_classes = [JSONWebTokenAuthentication]
+    serializer_class = TemperatureSerializer
 
-        queryset = Temperature.objects.filter(owner_id=payload["user_id"])
-        serializer = TemperatureSerializer(queryset, many=True)
-        return Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
-    def retrieve(self, request, pk):
-        temperature = self.get_object(pk=pk)
-        serializer = TemperatureSerializer(temperature)
-        return Response(serializer.data)
+    def get_object(self):
+        return Temperature.objects.get(id=self.kwargs["id"])
 
-    def create(self, request):
-        token = request.auth
-        payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
 
-        serializer = TemperatureSerializer(
-            data={"value": request.data["value"], "owner": payload["user_id"],}
+class GetGroupTemperatureAPI(generics.ListAPIView):
+    authentication_classes = [JSONWebTokenAuthentication]
+    serializer_class = TemperatureSerializer
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        users = LinkedUserGroup.objects.filter(group=self.kwargs["group_id"]).values(
+            "member"
         )
 
-        if not serializer.is_valid():
-            return Response(serializer.errors)
+        temperatures = Temperature.objects.none()
 
-        self.perform_create(serializer)
+        for user in users:
+            temperatures |= Temperature.objects.filter(owner_id=user["member"])
 
-        return Response(serializer.data)
+        return temperatures.order_by("id")
 
+
+class GetMyTemperatureAPI(generics.ListAPIView):
+    authentication_classes = [JSONWebTokenAuthentication]
+    serializer_class = TemperatureSerializer
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Temperature.objects.filter(owner_id=self.request.user.id)

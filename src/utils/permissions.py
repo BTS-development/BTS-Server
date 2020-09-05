@@ -1,9 +1,8 @@
 from rest_framework import permissions
-from apps.temperature.models import Temperature
 from apps.group.models import Group, LinkedUserGroup
 
 
-class IsOwnerOnly(permissions.BasePermission):
+class OwnerOnly(permissions.BasePermission):
     message = "you are not owner this temperature"
 
     def has_object_permission(self, request, view, obj):

@@ -1,0 +1,19 @@
+{
+    "django": {
+        "secret_key": "akln#66he+dzj_a=_fa_&14r_ra-$=9vfha=&t%-osc#!dplvg",
+        "databases": {
+            "default": {
+                "ENGINE": "django.db.backends.mysql",
+                "NAME": "bts-server",
+                "USER": "root",
+                "PASSWORD": "0128gksqls",
+                "HOST": "localhost",
+                "PORT": "3306"
+            }
+        }
+    },
+    "jwt": {
+        "secret_key": "akln#66he+dzj_a=_fa_&14r_ra-$=9vfha=&t%-osc#!dplvg",
+        "algorithm": "HS256"
+    }
+}
