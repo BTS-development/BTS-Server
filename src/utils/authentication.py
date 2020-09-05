@@ -29,7 +29,6 @@ class JSONWebTokenAuthentication(authentication.BaseAuthentication):
         self.JWT_ALGORITHM = config_secret_common["jwt"]["algorithm"]
 
     def authenticate(self, request):
-        print("==========================auth")
         header = self.get_header(request)
         if not header:
             return None
