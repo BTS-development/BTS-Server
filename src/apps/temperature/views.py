@@ -8,7 +8,7 @@ from apps.group.models import LinkedUserGroup, Group
 from .serializers import TemperatureSerializer
 
 from apps.user.authentication import JSONWebTokenAuthentication
-from apps.user.permissions import IsAutenticated, IsOwner, IsGroupManager
+from apps.user.permissions import IsAuthenticated, IsOwner, IsGroupManager
 
 
 class CreateTemperatureAPI(generics.CreateAPIView):
@@ -24,7 +24,7 @@ class CreateTemperatureAPI(generics.CreateAPIView):
 class GetTemperatureAPI(generics.RetrieveAPIView):
     authentication_classes = [JSONWebTokenAuthentication]
     serializer_class = TemperatureSerializer
-    permission_classes = [IsOwner]  # 접근할려는 오브젝트 주인이냐?
+    permission_classes = [IsAuthenticated & IsOwner]  # 접근할려는 오브젝트 주인이냐?
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
@@ -38,13 +38,13 @@ class GetTemperatureAPI(generics.RetrieveAPIView):
 class GetGroupTemperatureAPI(generics.ListAPIView):
     authentication_classes = [JSONWebTokenAuthentication]
     serializer_class = TemperatureSerializer
-    permission_classes = [IsGroupManager]  # 그룹 주인이냐?
+    permission_classes = [IsAuthenticated & IsGroupManager]  # 그룹 주인이냐?
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        group = Group.objects.get(id=self.kwargs["groip_id"])
+        group = Group.objects.get(id=self.kwargs["group_id"])
 
         self.check_object_permissions(self.request, group)
 

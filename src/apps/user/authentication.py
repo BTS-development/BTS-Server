@@ -9,7 +9,7 @@ import json
 
 class JSONWebTokenAuthentication(authentication.BaseAuthentication):
     def __init__(self):
-        _BASE = os.path.dirname(os.path.abspath(__file__))
+        _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         BASE_DIR = os.path.dirname(_BASE)
         ROOT_DIR = os.path.dirname(BASE_DIR)
 
