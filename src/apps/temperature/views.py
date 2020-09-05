@@ -4,17 +4,17 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import generics
 from .models import Temperature
-from apps.group.models import LinkedUserGroup
+from apps.group.models import LinkedUserGroup, Group
 from .serializers import TemperatureSerializer
 
-from utils.authentication import JSONWebTokenAuthentication
-from utils.permissions import ReadOnly, IsGroupAdmin, OwnerOnly
-from rest_framework.permissions import IsAuthenticated
+from apps.user.authentication import JSONWebTokenAuthentication
+from apps.user.permissions import IsAuthenticated, IsOwner, IsGroupManager
 
 
 class CreateTemperatureAPI(generics.CreateAPIView):
     authentication_classes = [JSONWebTokenAuthentication]
     serializer_class = TemperatureSerializer
+    # 인증 했냐?
 
     def post(self, request, *args, **kwargs):
         request.data["owner"] = self.request.user.id
@@ -24,25 +24,31 @@ class CreateTemperatureAPI(generics.CreateAPIView):
 class GetTemperatureAPI(generics.RetrieveAPIView):
     authentication_classes = [JSONWebTokenAuthentication]
     serializer_class = TemperatureSerializer
+    permission_classes = [IsAuthenticated & IsOwner]  # 접근할려는 오브젝트 주인이냐?
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     def get_object(self):
-        return Temperature.objects.get(id=self.kwargs["id"])
+        obj = Temperature.objects.get(id=self.kwargs["id"])
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 class GetGroupTemperatureAPI(generics.ListAPIView):
     authentication_classes = [JSONWebTokenAuthentication]
     serializer_class = TemperatureSerializer
+    permission_classes = [IsAuthenticated & IsGroupManager]  # 그룹 주인이냐?
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        users = LinkedUserGroup.objects.filter(group=self.kwargs["group_id"]).values(
-            "member"
-        )
+        group = Group.objects.get(id=self.kwargs["group_id"])
+
+        self.check_object_permissions(self.request, group)
+
+        users = LinkedUserGroup.objects.filter(group=group.id).values("member")
 
         temperatures = Temperature.objects.none()
 
@@ -55,6 +61,7 @@ class GetGroupTemperatureAPI(generics.ListAPIView):
 class GetMyTemperatureAPI(generics.ListAPIView):
     authentication_classes = [JSONWebTokenAuthentication]
     serializer_class = TemperatureSerializer
+    # 인증 했냐?
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
