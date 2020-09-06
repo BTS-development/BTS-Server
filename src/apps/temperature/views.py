@@ -1,21 +1,38 @@
+import jwt
+from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from .models import Temperature
 from .serializers import TemperatureSerializer
-from rest_framework import viewsets
+
+# from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from utils.authentication import JSONWebTokenAuthentication
+from utils.permissions import ReadOnly, IsGroupAdmin, IsOwnerOnly
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-import jwt
 from config import Config
-from rest_framework.response import Response
-from .permissions import ReadOnly, IsGroupAdmin
 
 
 class TemperatureViewSet(viewsets.ModelViewSet):
     queryset = Temperature.objects.all()
     serializer_class = TemperatureSerializer
-    permission_classes = [IsGroupAdmin | IsAuthenticated | ReadOnly]
+    permission_classes = [IsOwnerOnly | IsGroupAdmin & IsAuthenticated & ReadOnly]
     authentication_classes = [
         JSONWebTokenAuthentication,
     ]
+
+    @action(detail=False, methods=["get"], permission_classes=[IsGroupAdmin])
+    def group_temperatures(self, request, pk=None):
+        self.check_object_permissions(self.request, pk)
+
+    @action(detail=False, methods=["get"])
+    def my_temperatures(self, request, format=None):
+        token = request.auth
+        payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+
+        queryset = Temperature.objects.filter(owner_id=payload["user_id"])
+        serializer = TemperatureSerializer(queryset, many=True)
+        return Response(serializer.data)
 
     def retrieve(self, request, pk):
         self.check_object_permissions(self.request, pk)
@@ -25,12 +42,10 @@ class TemperatureViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         token = request.auth
-        token.decode("utf-8")
-
-        decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+        payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
 
         serializer = TemperatureSerializer(
-            data={"value": request.data["value"], "owner": decoded["user_id"],}
+            data={"value": request.data["value"], "owner": payload["user_id"],}
         )
 
         if not serializer.is_valid():

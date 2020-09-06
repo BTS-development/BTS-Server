@@ -32,7 +32,7 @@ class GroupViewSet(viewsets.ViewSet):
 
     def create(self, request):
 
-        #-------------------------
+        # -------------------------
         token = request.auth
         token.decode("utf-8")
 
@@ -60,15 +60,15 @@ class GroupViewSet(viewsets.ViewSet):
 
     def list(self, request):
 
-        #---------------------
+        # ---------------------
         token = request.auth
         token.decode("utf-8")
 
         decoded = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
-        #------------------------------
+        # ------------------------------
 
         queryset = Group.objects.filter(owner=decoded["user_id"])
-        
+
         serializer = GroupSerializer(queryset, many=True)
 
         return Response(serializer.data)

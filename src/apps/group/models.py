@@ -3,12 +3,9 @@ from django.db import models
 
 class Group(models.Model):
     name = models.CharField(max_length=255)
-    owner = models.ForeignKey("user.User",on_delete=models.CASCADE)
-    code = models.CharField(max_length=255,unique=True)
+    owner = models.ForeignKey("user.User", on_delete=models.CASCADE)
+    code = models.CharField(max_length=255, unique=True)
     created_at = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return self.name
 
 
 class LinkedUserGroup(models.Model):

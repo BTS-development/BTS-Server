@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 from config import Config
-import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -27,7 +26,7 @@ SECRET_KEY = Config.SECRET_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = Config.DEBUG
 
-ALLOWED_HOSTS = [".herokuapp.com"]
+ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "user.User"
 REST_USE_JWT = True
@@ -64,7 +63,6 @@ INSTALLED_APPS = [
     "apps.user",
     "apps.temperature",
     "apps.group",
-    "herokuapp",
 ]
 SITE_ID = 1
 
@@ -109,8 +107,6 @@ DATABASES = {
     }
 }
 
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES["default"].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
