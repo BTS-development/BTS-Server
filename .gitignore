@@ -4,7 +4,7 @@
 
 
 ### Code ###
-.config_secret
+config_secret
 .vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -59,7 +59,6 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
