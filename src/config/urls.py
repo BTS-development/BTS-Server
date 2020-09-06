@@ -13,10 +13,10 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf.urls import url, include
+from django.conf.urls import url
+from django.urls import path, include
 from apps.user.views import UserViewSet
 from apps.group.views import GroupViewSet
-from apps.temperature.views import TemperatureViewSet
 from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import (
     obtain_jwt_token,
@@ -27,10 +27,12 @@ from rest_framework_jwt.views import (
 router = DefaultRouter()
 router.register(r"groups", GroupViewSet, basename="group")
 router.register(r"users/account", UserViewSet)
-router.register(r"temperatures", TemperatureViewSet)
 
 urlpatterns = [
+    # url(r"^temperatures/(?P<pk>\d+)", TemperatureDetail.as_view()),
+    # url(r"^temperatures/", TemperatureList.as_view()),
     url(r"^", include(router.urls)),
+    path("temperatures/", include("apps.temperature.urls")),
     url(r"^users/account/login", obtain_jwt_token),
     url(r"^users/account/refresh", refresh_jwt_token),
     url(r"^users/account/verify", verify_jwt_token),
