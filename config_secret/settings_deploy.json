@@ -1,0 +1,16 @@
+{
+    "django": {
+        "secret_key": "PEn2o3E3aCPTrpIav30cXaxJauzThGrNjeR=+*+_5F@,*m`b6I@_",
+        "algorithm": "HS256",
+        "databases": {
+            "default": {
+                "ENGINE": "django.db.backends.mysql",
+                "NAME": "bts",
+                "USER": "hanbin",
+                "PASSWORD": "0128gksqls",
+                "HOST": "bts-db.ca0vla9zvx9a.us-east-1.rds.amazonaws.com",
+                "PORT": "3306"
+            }
+        }
+    }
+}

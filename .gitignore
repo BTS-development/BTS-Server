@@ -4,7 +4,6 @@
 
 
 ### Code ###
-config_secret
 .vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
