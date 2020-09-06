@@ -7,7 +7,8 @@ from .models import Temperature
 from apps.group.models import LinkedUserGroup, Group
 from .serializers import TemperatureSerializer
 
-from apps.user.authentication import JSONWebTokenAuthentication
+# from apps.user.authentication import JSONWebTokenAuthentication
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from apps.user.permissions import IsAuthenticated, IsOwner, IsGroupManager
 
 

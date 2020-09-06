@@ -3,30 +3,18 @@ from rest_framework import authentication
 from django.utils.translation import ugettext as _
 from rest_framework import exceptions
 from apps.user.models import User
+from django.conf import settings
+
 import os
 import json
 
 
 class JSONWebTokenAuthentication(authentication.BaseAuthentication):
     def __init__(self):
-        _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        BASE_DIR = os.path.dirname(_BASE)
-        ROOT_DIR = os.path.dirname(BASE_DIR)
+        USER_SETTINGS = getattr(settings, "JWT_AUTH", None)
 
-        CONFIG_SECRET_DIR = os.path.join(ROOT_DIR, ".config_secret")
-
-        CONFIG_SECRET_COMMON_FILE = os.path.join(
-            CONFIG_SECRET_DIR, "settings_common.json"
-        )
-        CONFIG_SECRET_DEV_FILE = os.path.join(CONFIG_SECRET_DIR, "settings_dev.json")
-        CONFIG_SECRET_DEPLOY_FILE = os.path.join(
-            CONFIG_SECRET_DIR, "settings_deploy.json"
-        )
-
-        config_secret_common = json.loads(open(CONFIG_SECRET_COMMON_FILE).read())
-
-        self.JWT_SECRET_KEY = config_secret_common["jwt"]["secret_key"]
-        self.JWT_ALGORITHM = config_secret_common["jwt"]["algorithm"]
+        self.JWT_SECRET_KEY = USER_SETTINGS["JWT_SECRET_KEY"]
+        self.JWT_ALGORITHM = USER_SETTINGS["JWT_ALGORITHM"]
 
     def authenticate(self, request):
         header = self.get_header(request)
