@@ -29,6 +29,8 @@ CONFIG_SECRET_DEPLOY_FILE = os.path.join(CONFIG_SECRET_DIR, "settings_deploy.jso
 config_secret_common = json.loads(open(CONFIG_SECRET_COMMON_FILE).read())
 SECRET_KEY = config_secret_common["django"]["secret_key"]
 
+JWT_SECRET_KEY = config_secret_common["jwt"]["secret_key"]
+JWT_ALGORITHM = config_secret_common["jwt"]["algorithm"]
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DATABASES = {
@@ -53,7 +55,8 @@ REST_FRAMEWORK = {
 
 JWT_AUTH = {
     "JWT_ALLOW_REFRESH": True,
-    "JWT_SECRET_KEY": SECRET_KEY,
+    "JWT_SECRET_KEY": "asdfafasfasdasf",
+    "JWT_ALGORITHM": "HS256",
 }
 
 # Application definition
