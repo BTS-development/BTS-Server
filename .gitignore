@@ -4,7 +4,7 @@
 
 
 ### Code ###
-.config_secret
+config_secret
 .vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -225,3 +225,7 @@ pyvenv.cfg
 pip-selfcheck.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,django,code,virtualenv
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
