@@ -1,57 +1,70 @@
 import jwt
-from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import generics
 from .models import Temperature
+from apps.group.models import LinkedUserGroup, Group
 from .serializers import TemperatureSerializer
 
-# from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from utils.authentication import JSONWebTokenAuthentication
-from utils.permissions import ReadOnly, IsGroupAdmin, IsOwnerOnly
-from rest_framework.permissions import IsAuthenticated
-from config import Config
+from apps.user.authentication import JSONWebTokenAuthentication
+from apps.user.permissions import IsAuthenticated, IsOwner, IsGroupManager
 
 
-class TemperatureViewSet(viewsets.ModelViewSet):
-    queryset = Temperature.objects.all()
+class CreateTemperatureAPI(generics.CreateAPIView):
+    authentication_classes = [JSONWebTokenAuthentication]
     serializer_class = TemperatureSerializer
-    permission_classes = [IsOwnerOnly | IsGroupAdmin & IsAuthenticated & ReadOnly]
-    authentication_classes = [
-        JSONWebTokenAuthentication,
-    ]
+    # 인증 했냐?
 
-    @action(detail=False, methods=["get"], permission_classes=[IsGroupAdmin])
-    def group_temperatures(self, request, pk=None):
-        self.check_object_permissions(self.request, pk)
+    def post(self, request, *args, **kwargs):
+        request.data["owner"] = self.request.user.id
+        return super().post(request, *args, **kwargs)
 
-    @action(detail=False, methods=["get"])
-    def my_temperatures(self, request, format=None):
-        token = request.auth
-        payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
 
-        queryset = Temperature.objects.filter(owner_id=payload["user_id"])
-        serializer = TemperatureSerializer(queryset, many=True)
-        return Response(serializer.data)
+class GetTemperatureAPI(generics.RetrieveAPIView):
+    authentication_classes = [JSONWebTokenAuthentication]
+    serializer_class = TemperatureSerializer
+    permission_classes = [IsAuthenticated & IsOwner]  # 접근할려는 오브젝트 주인이냐?
 
-    def retrieve(self, request, pk):
-        self.check_object_permissions(self.request, pk)
-        queryset = Temperature.objects.get(id=pk)
-        serializer = TemperatureSerializer(queryset)
-        return Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
-    def create(self, request):
-        token = request.auth
-        payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+    def get_object(self):
+        obj = Temperature.objects.get(id=self.kwargs["id"])
+        self.check_object_permissions(self.request, obj)
+        return obj
 
-        serializer = TemperatureSerializer(
-            data={"value": request.data["value"], "owner": payload["user_id"],}
-        )
 
-        if not serializer.is_valid():
-            return Response(serializer.errors)
+class GetGroupTemperatureAPI(generics.ListAPIView):
+    authentication_classes = [JSONWebTokenAuthentication]
+    serializer_class = TemperatureSerializer
+    permission_classes = [IsAuthenticated & IsGroupManager]  # 그룹 주인이냐?
 
-        self.perform_create(serializer)
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
-        return Response(serializer.data)
+    def get_queryset(self):
+        group = Group.objects.get(id=self.kwargs["group_id"])
 
+        self.check_object_permissions(self.request, group)
+
+        users = LinkedUserGroup.objects.filter(group=group.id).values("member")
+
+        temperatures = Temperature.objects.none()
+
+        for user in users:
+            temperatures |= Temperature.objects.filter(owner_id=user["member"])
+
+        return temperatures.order_by("id")
+
+
+class GetMyTemperatureAPI(generics.ListAPIView):
+    authentication_classes = [JSONWebTokenAuthentication]
+    serializer_class = TemperatureSerializer
+    # 인증 했냐?
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Temperature.objects.filter(owner_id=self.request.user.id)

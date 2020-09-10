@@ -2,11 +2,32 @@ import jwt
 from rest_framework import authentication
 from django.utils.translation import ugettext as _
 from rest_framework import exceptions
-from config import Config
 from apps.user.models import User
+import os
+import json
 
 
 class JSONWebTokenAuthentication(authentication.BaseAuthentication):
+    def __init__(self):
+        _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        BASE_DIR = os.path.dirname(_BASE)
+        ROOT_DIR = os.path.dirname(BASE_DIR)
+
+        CONFIG_SECRET_DIR = os.path.join(ROOT_DIR, ".config_secret")
+
+        CONFIG_SECRET_COMMON_FILE = os.path.join(
+            CONFIG_SECRET_DIR, "settings_common.json"
+        )
+        CONFIG_SECRET_DEV_FILE = os.path.join(CONFIG_SECRET_DIR, "settings_dev.json")
+        CONFIG_SECRET_DEPLOY_FILE = os.path.join(
+            CONFIG_SECRET_DIR, "settings_deploy.json"
+        )
+
+        config_secret_common = json.loads(open(CONFIG_SECRET_COMMON_FILE).read())
+
+        self.JWT_SECRET_KEY = config_secret_common["jwt"]["secret_key"]
+        self.JWT_ALGORITHM = config_secret_common["jwt"]["algorithm"]
+
     def authenticate(self, request):
         header = self.get_header(request)
         if not header:
@@ -18,7 +39,7 @@ class JSONWebTokenAuthentication(authentication.BaseAuthentication):
         token = header.split()[1]
 
         try:
-            payload = jwt.decode(token, Config.SECRET_KEY, Config.ALGORITHM)
+            payload = jwt.decode(token, self.JWT_SECRET_KEY, self.JWT_ALGORITHM)
         except jwt.ExpiredSignature:
             msg = _("Signature has expired.")
             raise exceptions.AuthenticationFailed(msg)
