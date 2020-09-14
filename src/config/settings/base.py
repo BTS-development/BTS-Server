@@ -33,6 +33,13 @@ JWT_SECRET_KEY = config_secret_common["jwt"]["secret_key"]
 JWT_ALGORITHM = config_secret_common["jwt"]["algorithm"]
 # SECURITY WARNING: don't run with debug turned on in production!
 
+
+JWT_AUTH = {
+    "JWT_ALLOW_REFRESH": True,
+    "JWT_SECRET_KEY": config_secret_common["jwt"]["secret_key"],
+    "JWT_ALGORITHM": config_secret_common["jwt"]["algorithm"],
+}
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -45,6 +52,9 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = "user.User"
 REST_USE_JWT = True
 
+REST_AUTH_SERIALIZERS = {
+    "USER_DETAILS_SERIALIZER": "apps.user.serializers.UserDetailsSerializer",
+}
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
@@ -53,12 +63,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-JWT_AUTH = {
-    "JWT_ALLOW_REFRESH": True,
-    "JWT_SECRET_KEY": "asdfafasfasdasf",
-    "JWT_ALGORITHM": "HS256",
-}
-
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Application definition
 
 INSTALLED_APPS = [
