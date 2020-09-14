@@ -5,10 +5,10 @@
         "databases": {
             "default": {
                 "ENGINE": "django.db.backends.mysql",
-                "NAME": "bts",
-                "USER": "hanbin",
+                "NAME": "bts_db",
+                "USER": "bts",
                 "PASSWORD": "0128gksqls",
-                "HOST": "bts-db.ca0vla9zvx9a.us-east-1.rds.amazonaws.com",
+                "HOST": "52.78.27.202",
                 "PORT": "3306"
             }
         }
