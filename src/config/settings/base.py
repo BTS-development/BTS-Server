@@ -78,8 +78,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "rest_auth.registration",
     "apps.user",
-    "apps.temperature",
     "apps.group",
+    "apps.temperature",
 ]
 SITE_ID = 1
 
