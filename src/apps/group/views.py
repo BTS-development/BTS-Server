@@ -50,12 +50,21 @@ class GroupViewSet(viewsets.ViewSet):
 
     def list(self, request):
 
-
         queryset = Group.objects.filter(owner=request.user.id)
-
         serializer = GroupSerializer(queryset, many=True)
 
         return Response(serializer.data)
+
+
+    @action(detail=False,methods=['GET'])
+    def mygroup(self,request):
+        
+        related_queryset = LinkedUserGroup.objects.filter(member=request.user.id)
+        group_id = [i.group_id for i in related_queryset]
+        queryset = Group.objects.filter(pk__in=group_id)
+        serializer = GroupSerializer(queryset,many=True)
+        return Response(serializer.data)
+
 
 
     @action(detail=False,methods=['POST'])
@@ -84,5 +93,3 @@ class GroupViewSet(viewsets.ViewSet):
       
         return Response(serializer.data)
 
-
-    
