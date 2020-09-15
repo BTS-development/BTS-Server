@@ -13,3 +13,5 @@ class LinkedUserGroup(models.Model):
     member = models.ForeignKey("user.User", on_delete=models.CASCADE)
     joined_at = models.DateField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('group','member',)

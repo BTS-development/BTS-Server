@@ -37,4 +37,5 @@ urlpatterns = [
     url(r"^users/account/refresh", refresh_jwt_token),
     url(r"^users/account/verify", verify_jwt_token),
     url(r"^users/account/signup", include("rest_auth.registration.urls")),
+
 ]
