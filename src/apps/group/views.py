@@ -11,8 +11,8 @@ import sys
 from .models import Group,LinkedUserGroup
 from .serializers import GroupSerializer,LinkedUserGroupSerializer
 
-from ..temperature.models import Temperature
-from ..temperature.serializers import TemperatureSerializer
+from ..user.models import User
+from ..user.serializers import UserSerializer
 
 import jwt
 import json
@@ -53,6 +53,13 @@ class GroupViewSet(viewsets.ViewSet):
         queryset = Group.objects.filter(owner=request.user.id)
         serializer = GroupSerializer(queryset, many=True)
 
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        related_queryset = LinkedUserGroup.objects.filter(group=pk)
+        member_id = [i.member_id for i in related_queryset]
+        queryset = User.objects.filter(id__in=member_id)
+        serializer = UserSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
