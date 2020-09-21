@@ -1,13 +1,25 @@
-from .models import Group, LinkedUserGroup
-from .serializers import GroupSerializer, LinkedUserGroupSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-import jwt
+from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
+import os
+import sys 
+
+from .models import Group,LinkedUserGroup
+from .serializers import GroupSerializer,LinkedUserGroupSerializer
+
+from ..user.models import User
+from ..user.serializers import UserSerializer
+
+import jwt
+import json
 import random
 import string
+
+
 
 
 class GroupViewSet(viewsets.ViewSet):
@@ -18,44 +30,73 @@ class GroupViewSet(viewsets.ViewSet):
     ]
 
     def create(self, request):
+                
+        code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
+        
+        while(bool(Group.objects.filter(code=code))):
+            code = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
-        # -------------------------
-        token = request.auth
-        token.decode("utf-8")
 
-        decoded = jwt.decode(token, SECRET_KEY, ALGORITHM)
-        # ------------------------------------
-
-        code = "".join(
-            random.choice(string.ascii_uppercase + string.digits) for _ in range(8)
-        )
 
         serializer = GroupSerializer(
-            data={
-                "name": request.data["name"],
-                "owner": decoded["user_id"],
-                "code": code,
-            }
+            data={"name": request.data["name"], "owner": request.user.id, "code":code}
         )
 
         if not serializer.is_valid():
             return Response(serializer.errors)
 
         serializer.save()
-
         return Response(serializer.data)
 
     def list(self, request):
 
-        # ---------------------
-        token = request.auth
-        token.decode("utf-8")
-
-        decoded = jwt.decode(token, SECRET_KEY, ALGORITHM)
-        # ------------------------------
-
-        queryset = Group.objects.filter(owner=decoded["user_id"])
-
+        queryset = Group.objects.filter(owner=request.user.id)
         serializer = GroupSerializer(queryset, many=True)
 
         return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        related_queryset = LinkedUserGroup.objects.filter(group=pk)
+        member_id = [i.member_id for i in related_queryset]
+        queryset = User.objects.filter(id__in=member_id)
+        serializer = UserSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+    @action(detail=False,methods=['GET'])
+    def mygroup(self,request):
+        
+        related_queryset = LinkedUserGroup.objects.filter(member=request.user.id)
+        group_id = [i.group_id for i in related_queryset]
+        queryset = Group.objects.filter(pk__in=group_id)
+        serializer = GroupSerializer(queryset,many=True)
+        return Response(serializer.data)
+
+
+
+    @action(detail=False,methods=['POST'])
+    def join(self,request):
+    
+        try:
+            group = Group.objects.filter(code=request.data["code"]).values()[0]
+        except:
+            return Response({"message":"존재하지 않는 그룹코드입니다"})
+        
+        if group["owner_id"] == request.user.id :
+            return Response({"message":"이 그룹의 관리자입니다"})
+
+        group_id = group["id"]
+
+        serializer = LinkedUserGroupSerializer(
+            data= {"group":group_id, "member":request.user.id}
+        )
+        
+
+        if not serializer.is_valid():
+            return Response(serializer.errors)
+
+        
+        serializer.save()
+      
+        return Response(serializer.data)
+
