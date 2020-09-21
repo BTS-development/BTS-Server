@@ -32,6 +32,7 @@ urlpatterns = [
     # url(r"^temperatures/", TemperatureList.as_view()),
     url(r"^", include(router.urls)),
     path("temperatures/", include("apps.temperature.urls")),
+    path("users/", include("apps.user.urls")),
     url(r"^users/account/login", ObtainJSONWebToken.as_view()),
     url(r"^users/account/refresh", refresh_jwt_token),
     url(r"^users/account/verify", verify_jwt_token),
