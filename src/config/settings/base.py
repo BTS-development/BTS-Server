@@ -15,6 +15,8 @@ import json
 
 DEBUG = True
 
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.99.100"]
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(_BASE)
@@ -49,6 +51,8 @@ DATABASES = {
 
 ALLOWED_HOSTS = []
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 AUTH_USER_MODEL = "user.User"
 REST_USE_JWT = True
 
@@ -57,7 +61,6 @@ REST_AUTH_SERIALIZERS = {
 }
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_jwt.authentication.JSONWebTokenAuthentication",
     ),
@@ -81,8 +84,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "rest_auth.registration",
     "apps.user",
-    "apps.temperature",
     "apps.group",
+    "apps.temperature",
 ]
 SITE_ID = 1
 
