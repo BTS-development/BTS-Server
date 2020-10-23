@@ -15,13 +15,15 @@ import json
 
 DEBUG = True
 
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.99.100"]
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(_BASE)
 ROOT_DIR = os.path.dirname(BASE_DIR)
 
 # Config Path
-CONFIG_SECRET_DIR = os.path.join(ROOT_DIR, "config_secret")
+CONFIG_SECRET_DIR = os.path.join(ROOT_DIR, ".config_secret")
 CONFIG_SECRET_COMMON_FILE = os.path.join(CONFIG_SECRET_DIR, "settings_common.json")
 CONFIG_SECRET_DEV_FILE = os.path.join(CONFIG_SECRET_DIR, "settings_dev.json")
 CONFIG_SECRET_DEPLOY_FILE = os.path.join(CONFIG_SECRET_DIR, "settings_deploy.json")
@@ -33,6 +35,13 @@ JWT_SECRET_KEY = config_secret_common["jwt"]["secret_key"]
 JWT_ALGORITHM = config_secret_common["jwt"]["algorithm"]
 # SECURITY WARNING: don't run with debug turned on in production!
 
+
+JWT_AUTH = {
+    "JWT_ALLOW_REFRESH": True,
+    "JWT_SECRET_KEY": config_secret_common["jwt"]["secret_key"],
+    "JWT_ALGORITHM": config_secret_common["jwt"]["algorithm"],
+}
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -42,24 +51,20 @@ DATABASES = {
 
 ALLOWED_HOSTS = []
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
 AUTH_USER_MODEL = "user.User"
 REST_USE_JWT = True
 
+REST_AUTH_SERIALIZERS = {
+    "USER_DETAILS_SERIALIZER": "apps.user.serializers.UserDetailsSerializer",
+}
 
 REST_FRAMEWORK = {
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_jwt.authentication.JSONWebTokenAuthentication",
     ),
 }
-
-JWT_AUTH = {
-    "JWT_ALLOW_REFRESH": True,
-    "JWT_SECRET_KEY": "asdfafasfasdasf",
-    "JWT_ALGORITHM": "HS256",
-}
-
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -76,8 +81,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "rest_auth.registration",
     "apps.user",
-    "apps.temperature",
     "apps.group",
+    "apps.temperature",
 ]
 SITE_ID = 1
 

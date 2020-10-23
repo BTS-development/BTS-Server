@@ -15,8 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.urls import path, include
-from apps.user.views import UserViewSet
 from apps.group.views import GroupViewSet
+from apps.auth.views import ObtainJSONWebToken
 from rest_framework.routers import DefaultRouter
 from rest_framework_jwt.views import (
     obtain_jwt_token,
@@ -26,16 +26,15 @@ from rest_framework_jwt.views import (
 
 router = DefaultRouter()
 router.register(r"groups", GroupViewSet, basename="group")
-router.register(r"users/account", UserViewSet)
 
 urlpatterns = [
     # url(r"^temperatures/(?P<pk>\d+)", TemperatureDetail.as_view()),
     # url(r"^temperatures/", TemperatureList.as_view()),
     url(r"^", include(router.urls)),
     path("temperatures/", include("apps.temperature.urls")),
-    url(r"^users/account/login", obtain_jwt_token),
+    path("users/", include("apps.user.urls")),
+    url(r"^users/account/login", ObtainJSONWebToken.as_view()),
     url(r"^users/account/refresh", refresh_jwt_token),
     url(r"^users/account/verify", verify_jwt_token),
     url(r"^users/account/signup", include("rest_auth.registration.urls")),
-
 ]
