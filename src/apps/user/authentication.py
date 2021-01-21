@@ -56,4 +56,3 @@ class JSONWebTokenAuthentication(authentication.BaseAuthentication):
             raise exceptions.AuthenticationFailed(msg)
 
         return user
-

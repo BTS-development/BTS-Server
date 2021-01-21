@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Group,LinkedUserGroup
+from .models import Group, LinkedUserGroup
 
 
 class GroupSerializer(serializers.ModelSerializer):

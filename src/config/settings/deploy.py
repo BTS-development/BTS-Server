@@ -9,4 +9,3 @@ WSGI_APPLICATION = "config.wsgi.application"
 ALLOWED_HOSTS += "*"
 
 DATABASES = config_secret_deploy["django"]["databases"]
-

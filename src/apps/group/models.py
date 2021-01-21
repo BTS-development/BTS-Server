@@ -14,4 +14,7 @@ class LinkedUserGroup(models.Model):
     joined_at = models.DateField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('group','member',)
+        unique_together = (
+            "group",
+            "member",
+        )
